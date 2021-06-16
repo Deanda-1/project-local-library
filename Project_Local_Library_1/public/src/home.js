@@ -15,43 +15,51 @@ function getBooksBorrowedCount(books) {
 }
 
 function getMostCommonGenres(books) {
-  let mostPopular = [];
-  books.forEach((book) => {
-    mostPopular.push({ name: book.genre, count: book.genre++})
-  })
-  return mostPopular
+  const bookGenres = books.map((book) => book.genre);
+  const temp = [];
+  bookGenres.map((genre) => {
+    const genreLocation = temp.findIndex((element) => element.name === genre);
+    if (genreLocation >= 0) {
+      temp[genreLocation].count = temp[genreLocation].count + 1;
+    } else {
+      temp.push({ name: genre, count: 1});
+    }
+  });
+  temp.sort((a, b) => b.count - a.count);
+  if (temp.length > 5) {
+    return temp.slice(0, 5);
+  }
+  return temp;
 }
 
 function getMostPopularBooks(books) {
-  const popBookList = [];
-  for(let item in books) {
-    const book = books[item];
-    const name = book.title;
-    const borrows = book.borrows;
-    const count = borrows.length;
-    const newObj = {name, count};
-  }
-  const sortPopBooks = popBookList.sort((bookA, bookB) => {
-    return bookB.count - bookA.count;
-  });
-  return sortPopBooks.slice(0, 5);
+  let reduBooks = books.reduce((acc, book) => {
+    if(acc[book.borrows]) {
+      acc[book.borrows].count++
+    } else {
+      acc[book.borrows] = {name: book.title, count: book.borrows.length}
+    }
+    return acc;
+  },{});
+  const mappedBooks = Object.keys(reduBooks).map((title) =>
+  reduBooks[title]
+  )
+  const popBooks = mappedBooks.sort((genA, genB) =>
+  genA.count < genB.count ? 1 : -1);
+  return _slicer(popBooks);
+}
+function _slicer(incoming) {
+  return incoming.slice(0,5);
 }
 
 function getMostPopularAuthors(books, authors) {
-  const popAuthor = []
-  for(let i = 0; i < authors.length; i++) {
-    const authorObj = {
-      name: authors[i].name.first + " " + authors[i].name.last, count: 0
-    };
-    for(let j = 0; j < books.length; j++) {
-      if(book[j].authorid === author[i].id) {
-        authorObj.count += books[j].borrows.length
-      }
+  return books.map(book => {
+    const author = authors.find(author => author.id ==- book.authorId)
+    return {
+      name: `${author.name.first} ${author.name.last}`,
+      count: book.borrows.length
     }
-    returnArray.push(authorObj);
-  }
-  returnArray.sort((a, b) => b.count - a.count)
-  return returnArray.slice(0, 5)
+  }).sort((a,b) => b.count - a.count).slice(0,5);
 }
 
 module.exports = {
