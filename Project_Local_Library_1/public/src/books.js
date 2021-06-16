@@ -10,7 +10,7 @@ function partitionBooksByBorrowedStatus(books) {
   const borrowed = books.filter(book => !book.borrows[0].returned);
   const returned = books.filter(book => book.borrows[0].returned);
   return [borrowed,returned];
-} 
+}
 
 function getBorrowersForBook(book, accounts) {
   const loaned = book.borrows
