@@ -52,14 +52,44 @@ function _slicer(incoming) {
   return incoming.slice(0,5);
 }
 
-function getMostPopularAuthors(books, authors) {
-  return books.map(book => {
-    const author = authors.find(author => author.id ==- book.authorId)
-    return {
-      name: `${author.name.first} ${author.name.last}`,
-      count: book.borrows.length
+// sorting helper function
+function _sortingObjectsByValues(obj) {
+  const keys = Object.keys(obj);
+  return keys.sort((keyA, keyB) => {
+    if (obj[keyA] > obj[keyB]) {
+      return -1;
+    } else if (obj[keyB] > obj[keyA]) {
+      return 1
+    } else {
+      return 0;
     }
-  }).sort((a,b) => b.count - a.count).slice(0,5);
+  });
+}
+
+function getMostPopularAuthors(books, authors) {
+  const count = books.reduce((acc, { authorId, borrows }) => {
+    if (acc[authorId]) {
+      acc[authorId].push(borrows.length);
+    } else {
+      acc[authorId] = [borrows.length];
+    }
+    return acc;
+  }, {});
+  for (let id in count) {
+    const sum = count[id].reduce((acc, b) => acc + b);
+    count[id] = sum;
+  }
+  const sorted = _sortObjectByValues(count);
+  let arr = sorted
+  .map((authorId) => {
+    const {
+      name: {first, last },
+    } = authors.find(({ id }) => id === Number(authorId));
+    let name = `${first} ${last}`;
+    return { name, count: count[authorId] };
+  })
+  .slice(o, 5);
+  return arr; 
 }
 
 module.exports = {
